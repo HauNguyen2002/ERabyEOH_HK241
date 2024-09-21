@@ -18,12 +18,12 @@
 #define DEFAULT_MQTT_HOST "mqtt1.eoh.io"
 
 // You should get Auth Token in the ERa App or ERa Dashboard
-#define ERA_AUTH_TOKEN "1b2f6d4f-0330-43bb-9ac8-8b31ce65c61f"
+#define ERA_AUTH_TOKEN ""
 
-#define LED_BOARD 48
-#define LED_GREEN 1
+#define LED_BOARD 48 //Builtin led pin of YOLO UNO
+#define LED_GREEN 1 //Signal pin of MKE-M01
 
-#define DHT11Pin 2
+#define DHT11Pin 2 //Signal pin of DHT11
 #define DHTType DHT11
 
 #include <Arduino.h>
@@ -31,8 +31,8 @@
 #include <ERa.hpp>
 #include <ERa/ERaTimer.hpp>
 
-const char ssid[] = "THANHHAU";
-const char pass[] = "30110902";
+const char ssid[] = "";
+const char pass[] = "";
 
 DHT HT(DHT11Pin, DHTType);
 float humi;
