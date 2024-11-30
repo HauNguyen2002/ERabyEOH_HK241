@@ -35,6 +35,7 @@ esp_err_t delete_user_credentials(size_t user_id);
 int isStored(const char *username, const char *password);
 
 byte storageStatus();
+int getNewID();
 
 
 

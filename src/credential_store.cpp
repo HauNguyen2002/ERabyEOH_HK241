@@ -234,7 +234,6 @@ esp_err_t delete_user_credentials(size_t user_id)
     if (err != ESP_OK)
         return err;
 
-
     char key[KEY_SIZE];
 
     memset(key, 0, KEY_SIZE);
@@ -308,4 +307,37 @@ int isStored(const char *username, const char *password)
 
     nvs_close(nvs_handle);
     return -1; // No matching credentials found
+}
+
+int getNewID()
+{
+    nvs_handle_t nvs_handle;
+    esp_err_t err = nvs_open("storage", NVS_READONLY, &nvs_handle);
+    if (err != ESP_OK)
+    {
+        Serial.println("Failed to open NVS storage");
+        return -1;
+    }
+    char key[KEY_SIZE];
+    size_t required_size = 0;
+    for (byte user_id = 0; user_id < MAX_USERS; user_id++)
+    {
+        snprintf(key, sizeof(key), "user_%d", user_id);
+        required_size = 0;
+        err = nvs_get_str(nvs_handle, key, NULL, &required_size);
+        if (err == ESP_ERR_NVS_NOT_FOUND)
+        {
+            nvs_close(nvs_handle);
+            return user_id;
+        }
+        else if (err != ESP_OK)
+        {
+            Serial.printf("Error checking key for ID %d\n", user_id);
+            nvs_close(nvs_handle);
+            return -1;
+        }
+    }
+    nvs_close(nvs_handle);
+    Serial.println("No available IDs found");
+    return -1;
 }
