@@ -688,7 +688,7 @@ void TaskTemperatureHumidity(void *pvParameters)
             Serial.println(" *C    ");
             ERa.virtualWrite(V0, temperature, V1, humidity);
         }
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 }
 
