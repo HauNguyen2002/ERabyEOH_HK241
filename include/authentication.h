@@ -8,7 +8,7 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
-
+#include <BH1750.h>
 #include "credential_store.h"
 
 #if CONFIG_FREERTOS_UNICORE
@@ -28,13 +28,19 @@ static const BaseType_t app_cpu = 1;
 #define SCL_PIN 12 // Configurable, see typical pin layout above
 
 // Define the DHT pins and type
-#define DHTPIN 5     // Pin where the DHT11 is connected
+#define DHTPIN 8     // Pin where the DHT11 is connected
 #define DHTTYPE DHT11  // Define the type of sensor
 
 
 // Define HC-SR04 pins
-#define TRIG_PIN 6   // Pin where the TRIG is connected
-#define ECHO_PIN 7   // Pin where the ECHO is connected
+#define TRIG_PIN 9   // Pin where the TRIG is connected
+#define ECHO_PIN 10   // Pin where the ECHO is connected
+
+#define SDA_PIN_LIGHT 6
+#define SCL_PIN_LIGHT 7
+
+
+
 
 // GLOBALS
 static MFRC522 mfrc522(0x28);
@@ -51,8 +57,9 @@ static QueueHandle_t username_queue;
 static QueueHandle_t password_queue;
 static QueueHandle_t terminal_queue;
 
-static TaskHandle_t addHandle;
-static TaskHandle_t updatePassHandle;
+static long duration = 0;
+static long dist = 0;
+static float lux = 0;
 
 
 enum OpMode
@@ -76,6 +83,12 @@ enum WriteMode
 {
     ALL,
     ONLY_PASSWORD
+};
+
+enum OpStatus{
+    OP_STATUS_OK,
+    OP_STATUS_FAILED,
+    OP_STATUS_CANCELLED
 };
 
 // CLASSES
@@ -108,6 +121,8 @@ typedef struct Door
 } Door;
 
 // Forward Declarations
+bool isOpCancelled();
+
 bool checkInvertedNibblesMatch(byte *trailerBuffer);
 
 void printTextData();
@@ -116,7 +131,7 @@ void dumpData(void *parameters);
 
 bool clearAllDataBlock();
 
-bool writeUserInfoToRFID(WriteMode write_mode);
+OpStatus writeUserInfoToRFID(WriteMode write_mode);
 
 int validateCredentialAccount();
 
@@ -134,5 +149,9 @@ void deleteUser();
 //------------------------------------------------------------------------
 
 void TaskTemperatureHumidity(void *pvParameters);
+
+void TaskLightLevel(void *pvParameters);
+
+void TaskDistance(void *pvParameters);
 
 #endif // AUTHENTICATION_H
