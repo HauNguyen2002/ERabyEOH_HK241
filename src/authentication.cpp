@@ -886,7 +886,7 @@ void setup()
     M5.begin();                   // Initialize M5Stack
     M5.Power.begin();             // Initialize power module
     Wire.begin(SDA_PIN, SCL_PIN); // Initialize I2C bus, customized to SDA = GPIO11, SCL = GPIO12
-    Wire.begin(SDA_PIN_LIGHT, SCL_PIN_LIGHT);
+    Wire1.begin(SDA_PIN_LIGHT, SCL_PIN_LIGHT);
 
 
     init_nvs();
@@ -897,7 +897,7 @@ void setup()
 
     dht.begin();
 
-    // lightSensor.begin();
+    lightSensor.begin(BH1750::Mode::CONTINUOUS_HIGH_RES_MODE, 0x23, &Wire1);
 
     pinMode(LED_ON_BOARD, OUTPUT);
     pinMode(TRIG_PIN, OUTPUT); // Set TRIG_PIN as output
@@ -927,7 +927,7 @@ void setup()
     xTaskCreatePinnedToCore(DoorAuthenticationTaskCenter, "Door Authentication Task Center", 4096, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(TaskTemperatureHumidity, "Task Temperature Humidity", 4096, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(TaskDistance, "Task Distance", 4096, NULL, 1, NULL, app_cpu);
-    // xTaskCreatePinnedToCore(TaskLightLevel, "Task Light Level", 2048, NULL, 1, NULL, app_cpu);
+    xTaskCreatePinnedToCore(TaskLightLevel, "Task Light Level", 2048, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(runStepper, "Run Stepper Motor", 4096, NULL, 1, NULL, app_cpu);
 
 
