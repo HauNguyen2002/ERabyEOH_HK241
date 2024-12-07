@@ -10,9 +10,9 @@
 #define motorPin3 18
 #define motorPin4 17
 
-static AccelStepper stepper1;
-static int endPoint;
-static int stepMultiplier;
+static AccelStepper stepper1(HALFSTEP, motorPin1, motorPin3, motorPin2, motorPin4);
+static int endPoint=0;
+static int stepMultiplier=1;
 
 void rotateClockwise();
 void rotateAntiClockwise();

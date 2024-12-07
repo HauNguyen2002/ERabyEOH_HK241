@@ -22,6 +22,10 @@ const char pass[] = "yourmama";
 // const char ssid[] = "THANHHAU";
 // const char pass[] = "30110902";
 
+
+static ERaFlash flash;
+static WiFiClient ERaWiFiClient;
+static ERaMqtt<WiFiClient, MQTTClient> mqtt(ERaWiFiClient);
 ERaPnP<ERaMqtt<WiFiClient, MQTTClient>> ERa(mqtt, flash);
 
 void setup()
@@ -43,8 +47,6 @@ void setup()
     digitalWrite(LED_ON_BOARD, LOW);
     vTaskDelay(3000 / portTICK_PERIOD_MS);
 
-    
-
     // xTaskCreatePinnedToCore(dumpData, "Dump Data", 4096, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(doCLI, "Do CLI", 4096, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(DoorAuthenticationTaskCenter, "Door Authentication Task Center", 4096, NULL, 1, NULL, app_cpu);
@@ -52,7 +54,6 @@ void setup()
     // xTaskCreatePinnedToCore(TaskDistance, "Task Distance", 4096, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(TaskLightLevel, "Task Light Level", 2048, NULL, 1, NULL, app_cpu);
     // xTaskCreatePinnedToCore(runStepper, "Run Stepper Motor", 4096, NULL, 1, NULL, app_cpu);
-
 
     /* Setup  called function every second */
 }
