@@ -79,7 +79,7 @@ esp_err_t dump_user_credentials()
         password_len = MAX_DATA_SIZE;
         err = nvs_get_str(nvs_handle, key, storedPassword, &password_len);
 
-        Serial.printf("Storage %d:\n", user_id);
+        Serial.printf("\nStorage %d:\n", user_id);
         Serial.printf("Username: %s\n", storedUsername);
         Serial.printf("Password: %s\n", storedPassword);
     }

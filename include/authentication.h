@@ -2,20 +2,13 @@
 #define AUTHENTICATION_H
 
 #include <Arduino.h>
-#include <freeRTOS/FreeRTOS.h>
 #include <M5Unified.h>
 #include "MFRC522_I2C.h"
-#include <Adafruit_Sensor.h>
-#include <DHT.h>
-#include <DHT_U.h>
-#include <BH1750.h>
 #include "credential_store.h"
+#include <ERa.hpp>
+#include <Widgets/ERaWidgets.hpp>
 
-#if CONFIG_FREERTOS_UNICORE
-static const BaseType_t app_cpu = 0;
-#else
-static const BaseType_t app_cpu = 1;
-#endif
+
 
 // USER DEFINES
 #define MAX_BLOCK_BUFFER 16
@@ -24,20 +17,10 @@ static const BaseType_t app_cpu = 1;
 #define NUM_INFO_TYPE 3
 #define BLOCK_PER_SECTOR 4
 #define MAX_SECTOR 16
+
 #define SDA_PIN 11 // Configurable, see typical pin layout above
 #define SCL_PIN 12 // Configurable, see typical pin layout above
 
-// Define the DHT pins and type
-#define DHTPIN 5     // Pin where the DHT11 is connected -- D2
-#define DHTTYPE DHT11  // Define the type of sensor
-
-
-// Define HC-SR04 pins
-#define TRIG_PIN 9   // Pin where the TRIG is connected -- D6
-#define ECHO_PIN 10   // Pin where the ECHO is connected -- D7
-
-#define SDA_PIN_LIGHT 6 // -- D3
-#define SCL_PIN_LIGHT 7 // -- D4 
 
 
 
@@ -57,9 +40,6 @@ static QueueHandle_t username_queue;
 static QueueHandle_t password_queue;
 static QueueHandle_t terminal_queue;
 
-static long duration = 0;
-static long dist = 0;
-static float lux = 0;
 
 
 enum OpMode
@@ -121,6 +101,8 @@ typedef struct Door
 } Door;
 
 // Forward Declarations
+
+void init_door_authentication();
 bool isOpCancelled();
 
 bool checkInvertedNibblesMatch(byte *trailerBuffer);
@@ -145,13 +127,5 @@ void addNewUser();
 
 void updateUserPassword();
 void deleteUser();
-
-//------------------------------------------------------------------------
-
-void TaskTemperatureHumidity(void *pvParameters);
-
-void TaskLightLevel(void *pvParameters);
-
-void TaskDistance(void *pvParameters);
 
 #endif // AUTHENTICATION_H

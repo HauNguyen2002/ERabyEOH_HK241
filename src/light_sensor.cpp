@@ -1,27 +1,31 @@
-// #include "light_sensor.h"
+#include "light_sensor.h"
 
-// BH1750 lightSensor;
 
-// void TaskLightLevel(void *pvParameters)
-// { // This is a task.
+void init_light_level(){
+    Wire1.begin(SDA_PIN_LIGHT, SCL_PIN_LIGHT);
+    lightSensor.begin(BH1750::Mode::CONTINUOUS_HIGH_RES_MODE, 0x23, &Wire1);
+}
 
-//     while (1)
-//     {
-//         Serial.print("Task Light Level: ");
+void TaskLightLevel(void *pvParameters)
+{ // This is a task.
 
-//         // Read light level from BH1750
-//         lux = lightSensor.readLightLevel(); // Read light level
+    while (1)
+    {
+        Serial.print("Task Light Level: ");
 
-//         if (lux < 0)
-//         {
-//             Serial.println("Failed to read from BH1750!");
-//         }
-//         else
-//         {
-//             // Serial.print("Light Level: ");
-//             Serial.print(lux);
-//             Serial.println(" lx");
-//         }
-//         vTaskDelay(1000 / portTICK_PERIOD_MS); // 100ms delay
-//     }
-// }
+        // Read light level from BH1750
+        lux = lightSensor.readLightLevel(); // Read light level
+
+        if (lux < 0)
+        {
+            Serial.println("Failed to read from BH1750!");
+        }
+        else
+        {
+            // Serial.print("Light Level: ");
+            Serial.print(lux);
+            Serial.println(" lx");
+        }
+        vTaskDelay(1000 / portTICK_PERIOD_MS); // 100ms delay
+    }
+}

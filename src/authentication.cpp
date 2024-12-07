@@ -2,19 +2,8 @@
 Choose multiple: Ctrl+D
 Reindent: Shift+Alt+F
 */
-#define ERA_LOCATION_VN
-// #define ERA_AUTH_TOKEN "1b2f6d4f-0330-43bb-9ac8-8b31ce65c61f" // Must be on top
-#define ERA_AUTH_TOKEN "d0ca164a-fefe-49c8-a17d-93e960134a5f" // Must be on top
-#include "authentication.h"
-#include <ERa.hpp>
-#include <Widgets/ERaWidgets.hpp>
-#include "stepperMotor.h"
 
-// GLOBALS
-const char ssid[] = "Guess who?";
-const char pass[] = "yourmama";
-// const char ssid[] = "THANHHAU";
-// const char pass[] = "30110902";
+#include "authentication.h"
 
 static enum OpMode mode = VALIDATE;
 
@@ -23,10 +12,6 @@ static UserInfo userBuffer;
 
 static ERaString fromStr;
 static ERaWidgetTerminalBox terminal(fromStr, V43, V44);
-
-static DHT dht(DHTPIN, DHTTYPE); // Create a DHT object
-
-BH1750 lightSensor;
 
 static bool cancel_flag = false;
 
@@ -41,78 +26,6 @@ Virtual pins list:
 - V45: Username
 - V46: Password
 */
-ERA_WRITE(V24) // Rotate Camera anti-Clockwise
-{
-    int value = param.getInt();
-
-    if (value == 24)
-    {
-        rotateAntiClockwise();
-
-        Serial.print("\n The stepper's current position: ");
-        Serial.print(stepper1.currentPosition());
-        Serial.print("\n");
-    }
-}
-
-ERA_WRITE(V25) // Rotate Camera Clockwise
-{
-    int value = param.getInt();
-
-    if (value == 25)
-    {
-        rotateClockwise();
-
-        Serial.print("\n The stepper's current position: ");
-        Serial.print(stepper1.currentPosition());
-        Serial.print("\n");
-    }
-}
-
-ERA_WRITE(V26) // Set the initial zero position of the camera
-{
-    int value = param.getInt();
-
-    if (value == 26)
-    {
-        setZeroPosition();
-
-        Serial.print("\n The initial zero position have been set!");
-        Serial.print("\n The stepper's current position: ");
-        Serial.print(stepper1.currentPosition());
-        Serial.print("\n");
-    }
-}
-
-ERA_WRITE(V27)
-{
-    int value = param.getInt();
-
-    if (value == 27)
-    {
-        stepMultiplierIncrement();
-
-        Serial.print("\n The step multiplier has been incremented");
-        Serial.print("\n Current step multiplier: ");
-        Serial.print(stepMultiplier);
-        Serial.print("\n");
-    }
-}
-
-ERA_WRITE(V28)
-{
-    int value = param.getInt();
-
-    if (value == 28)
-    {
-        stepMultiplierDecrement();
-
-        Serial.print("\n The step multiplier has been decremented");
-        Serial.print("\n Current step multiplier: ");
-        Serial.print(stepMultiplier);
-        Serial.print("\n");
-    }
-}
 
 ERA_WRITE(V41)
 {
@@ -775,164 +688,23 @@ void deleteUser()
     }
 }
 
-/*-----------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------Atmosphere------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------*/
-void TaskTemperatureHumidity(void *pvParameters)
-{ // This is a task.
-
-    while (1)
-    {
-        float temperature = dht.readTemperature();
-        float humidity = dht.readHumidity();
-
-        // Check if any reads failed and exit early
-        if (isnan(temperature) || isnan(humidity))
-        {
-            Serial.println("Failed to read from DHT sensor!");
-        }
-        else
-        {
-            Serial.print("Humidity: ");
-            Serial.print(humidity);
-            Serial.print(" %    ");
-            Serial.print("Temperature: ");
-            Serial.print(temperature);
-            Serial.println(" *C    ");
-            ERa.virtualWrite(V0, temperature, V1, humidity);
-        }
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
-    }
-}
-/*-----------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------Distance------------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------*/
-void TaskDistance(void *parameters)
-{ // This is a task.
-
-    while (1)
-    {
-        Serial.println("Task Distance");
-
-        // HC-SR04 distance measurement
-
-        // Clear the TRIG_PIN
-        digitalWrite(TRIG_PIN, LOW);
-        delayMicroseconds(2);
-
-        // Set the TRIG_PIN HIGH for 10 microseconds
-        digitalWrite(TRIG_PIN, HIGH);
-        delayMicroseconds(10);
-        digitalWrite(TRIG_PIN, LOW);
-
-        // Read the ECHO_PIN
-        duration = pulseIn(ECHO_PIN, HIGH);
-
-        // Calculate the distance (duration/2) * speed of sound (34300 cm/s)
-        dist = (duration / 2) * 0.0343;
-
-        // Print the distance in centimeters
-        // Serial.print("Distance: ");
-        Serial.print(dist);
-        Serial.println(" cm    ");
-        ERa.virtualWrite(V3, dist);
-
-        vTaskDelay(5000 / portTICK_PERIOD_MS); // 100ms delay
-    }
-}
-/*-----------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------Light sensor--------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------*/
-void TaskLightLevel(void *pvParameters)
-{ // This is a task.
-
-    while (1)
-    {
-        Serial.println("Task Light Level");
-
-        // Read light level from BH1750
-        lux = lightSensor.readLightLevel(); // Read light level
-
-        if (lux < 0)
-        {
-            Serial.println("Failed to read from BH1750!");
-        }
-        else
-        {
-            // Serial.print("Light Level: ");
-            Serial.print(lux);
-            Serial.println(" lx");
-        }
-        vTaskDelay(1000 / portTICK_PERIOD_MS); // 100ms delay
-    }
-}
-/*-----------------------------------------------------------------------------
------------------------------------------------------------------------------
------------------------------------Setup and main loop------------------------------
------------------------------------------------------------------------------
------------------------------------------------------------------------------*/
-
-void setup()
+void init_door_authentication()
 {
-    /* Setup debug console */
-    Serial.begin(115200);
-
-    M5.begin();                   // Initialize M5Stack
-    M5.Power.begin();             // Initialize power module
-    Wire.begin(SDA_PIN, SCL_PIN); // Initialize I2C bus, customized to SDA = GPIO11, SCL = GPIO12
-    Wire1.begin(SDA_PIN_LIGHT, SCL_PIN_LIGHT);
+    M5.begin();       // Initialize M5Stack
+    M5.Power.begin(); // Initialize power module
 
     init_nvs();
 
-    ERa.begin(ssid, pass);
-    mfrc522.PCD_Init(); // Initialize MFRC522
-
-    dht.begin();
-
-    lightSensor.begin(BH1750::Mode::CONTINUOUS_HIGH_RES_MODE, 0x23, &Wire1);
-
-    pinMode(LED_ON_BOARD, OUTPUT);
-    pinMode(TRIG_PIN, OUTPUT); // Set TRIG_PIN as output
-    pinMode(ECHO_PIN, INPUT);  // Set ECHO_PIN as input
-
-    digitalWrite(LED_ON_BOARD, LOW);
-    vTaskDelay(3000 / portTICK_PERIOD_MS);
-
+    Wire.begin(SDA_PIN, SCL_PIN); // Initialize I2C bus, customized to SDA = GPIO11, SCL = GPIO12
     for (byte i = 0; i < 6; i++)
         key.keyByte[i] = 0xFF;
+
+    mfrc522.PCD_Init(); // Initialize MFRC522
 
     terminal_queue = xQueueCreate(terminal_queue_len, MAX_MSG_BUFFER);
     username_queue = xQueueCreate(username_queue_len, MAX_BLOCK_BUFFER);
     password_queue = xQueueCreate(password_queue_len, MAX_BLOCK_BUFFER);
 
-    Serial.print("\n The stepper's current position: ");
-    Serial.print(stepper1.currentPosition());
-
-    stepper1.setMaxSpeed(1000.0);
-    stepper1.setAcceleration(100.0);
-    stepper1.setSpeed(200);
-    stepper1.moveTo(endPoint);
-
-    // xTaskCreatePinnedToCore(dumpData, "Dump Data", 4096, NULL, 1, NULL, app_cpu);
-    xTaskCreatePinnedToCore(doCLI, "Do CLI", 4096, NULL, 1, NULL, app_cpu);
-    xTaskCreatePinnedToCore(DoorAuthenticationTaskCenter, "Door Authentication Task Center", 4096, NULL, 1, NULL, app_cpu);
-    xTaskCreatePinnedToCore(TaskTemperatureHumidity, "Task Temperature Humidity", 4096, NULL, 1, NULL, app_cpu);
-    xTaskCreatePinnedToCore(TaskDistance, "Task Distance", 4096, NULL, 1, NULL, app_cpu);
-    xTaskCreatePinnedToCore(TaskLightLevel, "Task Light Level", 2048, NULL, 1, NULL, app_cpu);
-    xTaskCreatePinnedToCore(runStepper, "Run Stepper Motor", 4096, NULL, 1, NULL, app_cpu);
-
     // clear_user_credentials();
     // dump_user_credentials();
-    /* Setup  called function every second */
-}
-
-void loop()
-{
-    ERa.run();
 }
