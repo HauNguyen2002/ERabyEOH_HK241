@@ -426,11 +426,11 @@ OpStatus writeUserInfoToRFID(WriteMode write_mode)
             switch (infoIdx)
             {
             case USERNAME:
-                memcpy(w_rfid.dataBuffer, userBuffer.username, MAX_BLOCK_BUFFER);
+                memcpy(w_rfid.dataBuffer, userBuffer.username, strlen(userBuffer.username));
                 status = mfrc522.MIFARE_Write(w_rfid.dataBlockAddr, w_rfid.dataBuffer, MAX_BLOCK_BUFFER);
                 break;
             case PASSWORD:
-                memcpy(w_rfid.dataBuffer, userBuffer.password, MAX_BLOCK_BUFFER);
+                memcpy(w_rfid.dataBuffer, userBuffer.password, strlen(userBuffer.password));
                 status = mfrc522.MIFARE_Write(w_rfid.dataBlockAddr, w_rfid.dataBuffer, MAX_BLOCK_BUFFER);
                 break;
             case ID:
@@ -477,7 +477,7 @@ OpStatus writeUserInfoToRFID(WriteMode write_mode)
         }
 
         memset(w_rfid.dataBuffer, 0, w_rfid.byteCount);
-        memcpy(w_rfid.dataBuffer, userBuffer.password, MAX_BLOCK_BUFFER);
+        memcpy(w_rfid.dataBuffer, userBuffer.password, strlen(userBuffer.password));
         status = mfrc522.MIFARE_Write(w_rfid.dataBlockAddr, w_rfid.dataBuffer, MAX_BLOCK_BUFFER);
         if (status != MFRC522::STATUS_OK)
         {
@@ -888,12 +888,10 @@ void setup()
     Wire.begin(SDA_PIN, SCL_PIN); // Initialize I2C bus, customized to SDA = GPIO11, SCL = GPIO12
     Wire1.begin(SDA_PIN_LIGHT, SCL_PIN_LIGHT);
 
-
     init_nvs();
 
     ERa.begin(ssid, pass);
     mfrc522.PCD_Init(); // Initialize MFRC522
-
 
     dht.begin();
 
@@ -905,7 +903,6 @@ void setup()
 
     digitalWrite(LED_ON_BOARD, LOW);
     vTaskDelay(3000 / portTICK_PERIOD_MS);
-
 
     for (byte i = 0; i < 6; i++)
         key.keyByte[i] = 0xFF;
@@ -929,7 +926,6 @@ void setup()
     xTaskCreatePinnedToCore(TaskDistance, "Task Distance", 4096, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(TaskLightLevel, "Task Light Level", 2048, NULL, 1, NULL, app_cpu);
     xTaskCreatePinnedToCore(runStepper, "Run Stepper Motor", 4096, NULL, 1, NULL, app_cpu);
-
 
     // clear_user_credentials();
     // dump_user_credentials();

@@ -28,16 +28,16 @@ static const BaseType_t app_cpu = 1;
 #define SCL_PIN 12 // Configurable, see typical pin layout above
 
 // Define the DHT pins and type
-#define DHTPIN 8     // Pin where the DHT11 is connected
+#define DHTPIN 5     // Pin where the DHT11 is connected -- D2
 #define DHTTYPE DHT11  // Define the type of sensor
 
 
 // Define HC-SR04 pins
-#define TRIG_PIN 9   // Pin where the TRIG is connected
-#define ECHO_PIN 10   // Pin where the ECHO is connected
+#define TRIG_PIN 9   // Pin where the TRIG is connected -- D6
+#define ECHO_PIN 10   // Pin where the ECHO is connected -- D7
 
-#define SDA_PIN_LIGHT 6
-#define SCL_PIN_LIGHT 7
+#define SDA_PIN_LIGHT 6 // -- D3
+#define SCL_PIN_LIGHT 7 // -- D4 
 
 
 
