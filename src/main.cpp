@@ -1,3 +1,11 @@
+/*
+
+Add:
+#define NO_GLOBAL_INSTANCES
+#define NO_GLOBAL_ERA
+
+In ERaSimpleEsp32.hpp
+*/
 #define ERA_LOCATION_VN
 // #define ERA_AUTH_TOKEN "1b2f6d4f-0330-43bb-9ac8-8b31ce65c61f" // Must be on top
 #define ERA_AUTH_TOKEN "d0ca164a-fefe-49c8-a17d-93e960134a5f" // Must be on top
