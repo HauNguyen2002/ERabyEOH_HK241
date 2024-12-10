@@ -8,8 +8,6 @@
 #include <ERa.hpp>
 #include <Widgets/ERaWidgets.hpp>
 
-
-
 // USER DEFINES
 #define MAX_BLOCK_BUFFER 16
 #define MAX_MSG_BUFFER 100
@@ -18,12 +16,11 @@
 #define BLOCK_PER_SECTOR 4
 #define MAX_SECTOR 16
 
+#define MARK_SECTOR 15
+#define STATE_SECTOR 14
+
 #define SDA_PIN 11 // Configurable, see typical pin layout above
 #define SCL_PIN 12 // Configurable, see typical pin layout above
-
-
-
-
 
 // GLOBALS
 static MFRC522 mfrc522(0x28);
@@ -40,7 +37,10 @@ static QueueHandle_t username_queue;
 static QueueHandle_t password_queue;
 static QueueHandle_t terminal_queue;
 
+static const char mark_credential_key[MAX_BLOCK_BUFFER + 1] = "%#!&%NNWEWER";
 
+static const char writing_key='w';
+static const char done_writing_key='d';
 
 enum OpMode
 {
@@ -65,7 +65,14 @@ enum WriteMode
     ONLY_PASSWORD
 };
 
-enum OpStatus{
+enum WriteState{
+    WRITING,
+    DONE,
+    UNKNOWN
+};
+
+enum OpStatus
+{
     OP_STATUS_OK,
     OP_STATUS_FAILED,
     OP_STATUS_CANCELLED

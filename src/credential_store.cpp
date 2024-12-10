@@ -262,7 +262,7 @@ esp_err_t delete_user_credentials(size_t user_id)
     return err;
 }
 
-int isStored(const char *username, const char *password)
+int isStored(const char *username, const char *password, const byte user_id)
 {
     nvs_handle_t nvs_handle;
     esp_err_t err = nvs_open("storage", NVS_READONLY, &nvs_handle);
@@ -278,31 +278,27 @@ int isStored(const char *username, const char *password)
     size_t password_len = MAX_DATA_SIZE;
     char key[KEY_SIZE];
 
-    // Iterate through all possible users
-    for (byte user_id = 0; user_id < MAX_USERS; user_id++)
+    memset(key, 0, KEY_SIZE);
+    sprintf(key, "user_%d", user_id);
+    username_len = MAX_DATA_SIZE;
+    err = nvs_get_str(nvs_handle, key, storedUsername, &username_len);
+
+    if (err != ESP_OK)
+        return -1; // Skip if retrieval fails
+    memset(key, 0, KEY_SIZE);
+    sprintf(key, "pass_%d", user_id);
+    password_len = MAX_DATA_SIZE;
+    err = nvs_get_str(nvs_handle, key, storedPassword, &password_len);
+
+    if (err != ESP_OK)
+        return -1; // Skip if retrieval fails
+
+    // Compare username and password
+    if (strncmp(username, storedUsername, MAX_DATA_SIZE) == 0 &&
+        strncmp(password, storedPassword, MAX_DATA_SIZE) == 0)
     {
-        memset(key, 0, KEY_SIZE);
-        sprintf(key, "user_%d", user_id);
-        username_len = MAX_DATA_SIZE;
-        err = nvs_get_str(nvs_handle, key, storedUsername, &username_len);
-
-        if (err != ESP_OK)
-            continue; // Skip if retrieval fails
-        memset(key, 0, KEY_SIZE);
-        sprintf(key, "pass_%d", user_id);
-        password_len = MAX_DATA_SIZE;
-        err = nvs_get_str(nvs_handle, key, storedPassword, &password_len);
-
-        if (err != ESP_OK)
-            continue; // Skip if retrieval fails
-
-        // Compare username and password
-        if (strncmp(username, storedUsername, MAX_DATA_SIZE) == 0 &&
-            strncmp(password, storedPassword, MAX_DATA_SIZE) == 0)
-        {
-            nvs_close(nvs_handle);
-            return user_id;
-        }
+        nvs_close(nvs_handle);
+        return user_id;
     }
 
     nvs_close(nvs_handle);

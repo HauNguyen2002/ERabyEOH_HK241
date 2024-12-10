@@ -32,7 +32,7 @@ esp_err_t change_user_password(const char* new_password,size_t user_id);
 
 esp_err_t delete_user_credentials(size_t user_id);
 
-int isStored(const char *username, const char *password);
+int isStored(const char *username, const char *password, const byte id);
 
 byte storageStatus();
 int getNewID();
