@@ -37,4 +37,5 @@ This project focuses on implementing MIFARE 1k RFID operations, including card w
 - [Adafruit Fingerprint Sensor Library by Gitshaoxiang](https://github.com/m5stack/M5-FPC1020A) for biometric fingerprint sensor.
 
 - [Era by EOH](https://e-ra-iot-wiki.gitbook.io/documentation) for the IoT MQTT Server.
+- [FreeRTOS](https://www.freertos.org/) for RTOS implementation.
 
